@@ -1,8 +1,6 @@
-import { Show, createEffect, createSignal } from 'solid-js'
-import IconEnv from './icons/Env'
-import IconX from './icons/X'
-import SettingsSlider from './SettingsSlider'
+import { Show } from 'solid-js'
 import type { Accessor, Setter } from 'solid-js'
+import IconEnv from './icons/Env'
 
 interface Props {
   canEdit: Accessor<boolean>
@@ -10,40 +8,33 @@ interface Props {
   setSystemRoleEditing: Setter<boolean>
   currentSystemRoleSettings: Accessor<string>
   setCurrentSystemRoleSettings: Setter<string>
-  temperatureSetting: (value: number) => void
 }
+
+export const defaultSystemRoleSettings = `You are ChatGPT, a large language model trained by OpenAI.
+Knowledge cutoff: 2021-09. Current date: ${Date()}.`
 
 export default (props: Props) => {
   let systemInputRef: HTMLTextAreaElement
-  const [temperature, setTemperature] = createSignal(0.6)
 
   const handleButtonClick = () => {
     props.setCurrentSystemRoleSettings(systemInputRef.value)
     props.setSystemRoleEditing(false)
   }
 
-  createEffect(() => {
-    props.temperatureSetting(temperature())
-  })
-
   return (
-    <div class="my-4">
+    <div class='my-4'>
       <Show when={!props.systemRoleEditing()}>
         <Show when={props.currentSystemRoleSettings()}>
           <div>
-            <div class="fi gap-1 op-50 dark:op-60">
-              <Show when={props.canEdit()} fallback={<IconEnv />}>
-                <span onClick={() => props.setCurrentSystemRoleSettings('')} class="sys-edit-btn p-1 rd-50%" > <IconX /> </span>
-              </Show>
-              <span>System Role ( Temp = {temperature()} ) : </span>
+            <div class='fi gap-1 op-50 dark:op-60'>
+              <IconEnv />
+              <span>System Role:</span>
             </div>
-            <div class="mt-1">
-              {props.currentSystemRoleSettings()}
-            </div>
+            <div class='mt-1'>{props.currentSystemRoleSettings()}</div>
           </div>
         </Show>
         <Show when={!props.currentSystemRoleSettings() && props.canEdit()}>
-          <span onClick={() => props.setSystemRoleEditing(!props.systemRoleEditing())} class="sys-edit-btn">
+          <span onClick={() => props.setSystemRoleEditing(!props.systemRoleEditing())} class='sys-edit-btn'>
             <IconEnv />
             <span>Add System Role</span>
           </span>
@@ -51,40 +42,24 @@ export default (props: Props) => {
       </Show>
       <Show when={props.systemRoleEditing() && props.canEdit()}>
         <div>
-          <div class="fi gap-1 op-50 dark:op-60">
+          <div class='fi gap-1 op-50 dark:op-60'>
             <IconEnv />
             <span>System Role:</span>
           </div>
-          <p class="my-2 leading-normal text-sm op-50 dark:op-60">Gently instruct the assistant and set the behavior of the assistant.</p>
+          <p class='my-2 leading-normal text-sm op-50 dark:op-60'>{defaultSystemRoleSettings}</p>
           <div>
             <textarea
               ref={systemInputRef!}
-              placeholder="You are a helpful assistant, answer as concisely as possible...."
-              autocomplete="off"
+              placeholder={defaultSystemRoleSettings}
+              autocomplete='off'
               autofocus
-              rows="3"
+              rows='3'
               gen-textarea
             />
           </div>
-          <div class="w-full fi fb">
-            <button onClick={handleButtonClick} gen-slate-btn>
-              Set
-            </button>
-            <div class="w-full ml-2">
-              <SettingsSlider
-                settings={{
-                  name: 'Temperature',
-                  type: 'slider',
-                  min: 0,
-                  max: 2,
-                  step: 0.01,
-                }}
-                editing={() => true}
-                value={temperature}
-                setValue={setTemperature}
-              />
-            </div>
-          </div>
+          <button onClick={handleButtonClick} gen-slate-btn>
+            Set
+          </button>
         </div>
       </Show>
     </div>
